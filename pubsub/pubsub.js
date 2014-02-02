@@ -16,17 +16,14 @@ function PubSub(){
 
 PubSub.prototype.subscribe = function(eventName, handler) {
     if(handler === undefined) {
-        console.log('Не ввели функцию, которая будет вызвана при возникновении события');
-        return false;
+        return;
     }
     if (this.handlers[eventName] === undefined) {
         this.handlers[eventName] = [];
     }
     if(this.handlers[eventName].indexOf(handler) > -1) {
-        console.log('Уже есть такая функция в этом событии');
-        return false
+        return;
     } else {
-        console.log('Функция подписана');
         return this.handlers[eventName].push(handler);
     }
 };
@@ -40,15 +37,10 @@ PubSub.prototype.subscribe = function(eventName, handler) {
 
 PubSub.prototype.unsubscribe = function(eventName, handler) {
     if(handler === undefined) {
-        console.log('Не ввели функцию, которая будет отписана');
-        return false;
+        return;
     }
     if(this.handlers[eventName].indexOf(handler) > -1) {
-        console.log('Функция отписана');
         return this.handlers[eventName].splice(this.handlers[eventName].indexOf(handler), 1);
-    } else {
-        console.log('Функция не найдена');
-        return false
     }
 };
 
@@ -109,7 +101,6 @@ Function.prototype.handlers = {};
 
 Function.prototype.subscribe = function(eventName) {
     if(this === undefined) {
-        console.log('Не ввели функцию, которая будет вызвана при возникновении события');
         return false;
     }
     if (Function.prototype.handlers[eventName] === undefined) {
@@ -121,38 +112,17 @@ Function.prototype.subscribe = function(eventName) {
 
 Function.prototype.unsubscribe = function(eventName) {
     if(handler === undefined) {
-        console.log('Не ввели функцию, которая будет отписана');
         return false;
     }
     if (Function.prototype.handlers[eventName] !== undefined) {
         Function.prototype.handlers[eventName].splice(Function.prototype.handlers[eventName].indexOf(this),1);
-        console.log('Функция отписана');
         return true;
     } else {
-        console.log('Функция не найдена');
         return false
     }
 };
 
 
-Function.prototype.publish = function(eventName, data) {
-    if (this.handlers[eventName] === undefined) {
-        return false;
-    }
-    function toPublic() {
-        setTimeout(function(event){
-            event(eventName, data);
-        }, 1)
-    }
-    Function.prototype.handlers[eventName].forEach(toPublic);
-    return true;
-};
-
-
-Function.prototype.off = function(eventName) {
-    Function.prototype.handlers[eventName] =  [];
-    return true;
-};
 
 
 function foo(event, data) {
