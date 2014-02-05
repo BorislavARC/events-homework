@@ -15,16 +15,17 @@ function PubSub(){
  */
 
 PubSub.prototype.subscribe = function(eventName, handler) {
+    var event = this.handlers[eventName];
     if(handler === undefined) {
         return;
     }
-    if (this.handlers[eventName] === undefined) {
-        this.handlers[eventName] = [];
+    if (event === undefined) {
+        event = [];
     }
-    if(this.handlers[eventName].indexOf(handler) > -1) {
+    if(event.indexOf(handler) > -1) {
         return;
     } else {
-        return this.handlers[eventName].push(handler);
+        return event.push(handler);
     }
 };
 
@@ -36,11 +37,12 @@ PubSub.prototype.subscribe = function(eventName, handler) {
  */
 
 PubSub.prototype.unsubscribe = function(eventName, handler) {
+    var event = this.handlers[eventName];
     if(handler === undefined) {
         return;
     }
     if(this.handlers[eventName].indexOf(handler) > -1) {
-        return this.handlers[eventName].splice(this.handlers[eventName].indexOf(handler), 1);
+        return event.splice(event.indexOf(handler), 1);
     }
 };
 
@@ -56,12 +58,12 @@ PubSub.prototype.publish = function(eventName, data) {
         return false;
     }
 
-    function toPublic() {
-        setTimeout(function(event){
-        event(eventName, data);
+    function pubilshTo() {
+        setTimeout(function(handler){
+            handler(eventName, data);
         }, 1)
     }
-    this.handlers[eventName].forEach(toPublic);
+    this.handlers[eventName].forEach(pubilshTo);
     return true;
 };
 
@@ -72,9 +74,12 @@ PubSub.prototype.publish = function(eventName, data) {
  */
 
 PubSub.prototype.off = function(eventName) {
-    this.handlers[eventName] =  [];
-    return true;
-
+    if (this.handlers[eventName] === undefined) {
+        return false;
+    } else {
+        this.handlers[eventName] =  [];
+        return true;
+    }
 };
 
 
@@ -97,32 +102,23 @@ PubSub.prototype.off = function(eventName) {
  */
 
 
-Function.prototype.handlers = {};
+Function.prototype.pubsub = new PubSub();
 
 Function.prototype.subscribe = function(eventName) {
-    if(this === undefined) {
-        return false;
-    }
-    if (Function.prototype.handlers[eventName] === undefined) {
-        Function.prototype.handlers[eventName] = [];
-    }
-    return Function.handlers[eventName].push(this);
+    return this.pubsub.subscribe(eventName, this);
 };
-
 
 Function.prototype.unsubscribe = function(eventName) {
-    if(handler === undefined) {
-        return false;
-    }
-    if (Function.prototype.handlers[eventName] !== undefined) {
-        Function.prototype.handlers[eventName].splice(Function.prototype.handlers[eventName].indexOf(this),1);
-        return true;
-    } else {
-        return false
-    }
+    return this.pubsub.unsubscribe(eventName, this);
 };
 
+Function.prototype.publish = function(eventName) {
+    return this.pubsub.publish(eventName, this);
+};
 
+Function.prototype.off = function(eventName) {
+    return this.pubsub.off(eventName, this);
+};
 
 
 function foo(event, data) {
