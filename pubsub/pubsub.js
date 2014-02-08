@@ -16,17 +16,11 @@ function PubSub(){
 
 PubSub.prototype.subscribe = function(eventName, handler) {
     var event = this.handlers[eventName];
-    if(handler === undefined) {
-        return;
-    }
-    if (event === undefined) {
-        event = [];
-    }
-    if(event.indexOf(handler) > -1) {
-        return;
-    } else {
+    if(!handler || ( event && event.indexOf(handler) > -1)) return;
+    if (!event) event = [];
+
         return event.push(handler);
-    }
+
 };
 
 /**
@@ -37,13 +31,12 @@ PubSub.prototype.subscribe = function(eventName, handler) {
  */
 
 PubSub.prototype.unsubscribe = function(eventName, handler) {
-    var event = this.handlers[eventName];
-    if(handler === undefined) {
-        return;
-    }
-    if(this.handlers[eventName].indexOf(handler) > -1) {
-        return event.splice(event.indexOf(handler), 1);
-    }
+    var event = this.handlers[eventName],
+        idx;
+    if(!handler || !event) return;
+
+    idx = event.indexOf(handler);
+    if(idx > -1) event.splice(idx, 1);
 };
 
 /**
@@ -54,16 +47,15 @@ PubSub.prototype.unsubscribe = function(eventName, handler) {
  */
 
 PubSub.prototype.publish = function(eventName, data) {
-    if (this.handlers[eventName] === undefined) {
-        return false;
-    }
+    var event = this.handlers[eventName];
+    if (!event) return false;
 
     function pubilshTo() {
         setTimeout(function(handler){
             handler(eventName, data);
         }, 1)
     }
-    this.handlers[eventName].forEach(pubilshTo);
+    event.forEach(pubilshTo);
     return true;
 };
 
